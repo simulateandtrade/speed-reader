@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-black text-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSVP Speed Reader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="h-full flex flex-col justify-between bg-black text-gray-200 antialiased select-none font-sans overflow-hidden">
+    <!-- Header -->
+    <header class="w-full border-b border-zinc-800 px-6 py-3 flex items-center justify-between bg-zinc-950">
+        <h1 class="text-xs uppercase font-semibold tracking-wider text-zinc-100">RSVP Reader (Secure Engine)</h1>
+    </header>
+
+    <!-- Main Protected Reader View -->
+    <main class="flex-1 flex flex-col justify-center items-center w-full px-4">
+        <div class="w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-xl p-8 flex flex-col gap-6 shadow-2xl">
+            <div class="text-center">
+                <h2 class="text-xl font-bold text-white mb-2">Secure RSVP Reader</h2>
+                <p class="text-xs text-zinc-400">Your core algorithms are securely locked on the server.</p>
+            </div>
+            
+            <textarea id="userInput" rows="6" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-4 text-zinc-200 focus:outline-none focus:border-red-500 text-sm" placeholder="Paste your text here..."></textarea>
+            
+            <div class="flex justify-between items-center">
+                <span id="statusMsg" class="text-xs text-zinc-500 font-mono">Ready</span>
+                <button id="startSecureBtn" class="px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white text-xs font-semibold rounded-lg transition shadow-lg shadow-red-900/30">
+                    Start Secure Reading
+                </button>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
