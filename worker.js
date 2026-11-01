@@ -83,6 +83,12 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 <span>Import URL</span>
             </button>
 
+            <!-- Get Chrome Extension Button -->
+            <a href="https://chromewebstore.google.com/detail/YOUR-EXTENSION-ID" target="_blank" class="flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium bg-zinc-900 hover:bg-zinc-800 text-zinc-200 rounded-lg transition border border-zinc-700 hover:border-zinc-500 shadow-sm">
+                <i class="fa-brands fa-chrome text-red-500"></i>
+                <span>Get Extension</span>
+            </a>
+
             <!-- Document Editor Switcher Button -->
             <button id="toggleInputBtn" class="flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium bg-red-600 hover:bg-red-500 text-white rounded-lg transition shadow-md shadow-red-900/20">
                 <i class="fa-solid fa-file-lines"></i>
