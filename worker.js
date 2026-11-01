@@ -630,20 +630,24 @@ Press space to begin reading this text at your own pace!\`;
 
             window.addEventListener('keydown', (e) => {
                 if (document.activeElement === textInput || document.activeElement === wpmDirectInput || document.activeElement === articleUrlInput) return;
-                switch (e.code) {
-                    case 'Space': e.preventDefault(); togglePlayPause(); break;
-                    case 'KeyF': e.preventDefault(); toggleFullscreen(); break;
-                    case 'Escape': 
-                        if (isFullscreen) toggleFullscreen();
-                        if (!urlModal.classList.contains('hidden')) urlModal.classList.add('hidden');
-                        break;
-                    case 'ArrowLeft': e.preventDefault(); stepBackward(); break;
-                    case 'ArrowRight': e.preventDefault(); stepForward(); break;
-                    case 'ArrowUp': e.preventDefault(); setWpm(Math.min(1000, wpm + 25)); break;
-                    case 'ArrowDown': e.preventDefault(); setWpm(Math.max(100, wpm - 25)); break;
-                    case 'KeyR': e.preventDefault(); restart(); break;
-                    case 'KeyE': e.preventDefault(); toggleDocumentEditor(); break;
-                }
+                switch (e.key) {
+        case ' ':
+        case 'Spacebar': e.preventDefault(); togglePlayPause(); break;
+        case 'f':
+        case 'F': e.preventDefault(); toggleFullscreen(); break;
+        case 'Escape':
+            if (isFullscreen) toggleFullscreen();
+            if (!urlModal.classList.contains('hidden')) urlModal.classList.add('hidden');
+            break;
+        case 'ArrowLeft': e.preventDefault(); stepBackward(); break;
+        case 'ArrowRight': e.preventDefault(); stepForward(); break;
+        case 'ArrowUp': e.preventDefault(); setWpm(Math.min(1000, wpm + 25)); break;
+        case 'ArrowDown': e.preventDefault(); setWpm(Math.max(100, wpm - 25)); break;
+        case 'r':
+        case 'R': e.preventDefault(); restart(); break;
+        case 'e':
+        case 'E': e.preventDefault(); toggleDocumentEditor(); break;
+    }
             });
         }
 
