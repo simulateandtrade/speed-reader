@@ -8,22 +8,27 @@ const HTML_CONTENT = `<!DOCTYPE html>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Custom font declarations and layout styles */
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Fira+Code:wght@400;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Roboto+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 
+        /* Dynamic Font Classes */
         .font-serif-classic { font-family: 'Lora', Georgia, serif; }
         .font-mono-code { font-family: 'Fira Code', 'Roboto Mono', monospace; }
         .font-sans-clean { font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; }
 
+        /* Reticle Vertical Marker Line */
         .reticle-line {
             width: 2px;
             background-color: #333333;
         }
 
+        /* Focus ORP character highlight */
         .orp-target {
-            color: #ff3b30;
+            color: #ff3b30; /* Vibrant focal red */
             font-weight: 500;
         }
 
+        /* Clean custom scrollbar for text input & tracker */
         textarea::-webkit-scrollbar, #trackerContainer::-webkit-scrollbar {
             width: 8px;
         }
@@ -38,10 +43,12 @@ const HTML_CONTENT = `<!DOCTYPE html>
             background: #555555;
         }
 
+        /* Custom Slider Styling */
         input[type=range] {
             accent-color: #ff3b30;
         }
 
+        /* Document Page Canvas Aesthetics */
         .doc-page {
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
         }
@@ -113,7 +120,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
             <div id="progressBar" class="bg-red-600 h-full w-0 transition-all duration-100"></div>
         </div>
 
-        <!-- LIVE PROGRESS TRACKER PANEL -->
+        <!-- STRUCTURAL LIVE PROGRESS TRACKER PANEL -->
         <div id="trackerPanel" class="w-full max-w-4xl px-6 py-4 transition-all duration-300">
             <div id="trackerContainer" class="w-full max-h-36 overflow-y-auto bg-zinc-950/80 border border-zinc-900 rounded-lg p-4 text-sm font-serif-classic text-zinc-500 leading-relaxed shadow-inner space-y-3">
                 <div id="trackerText">Loading document text...</div>
@@ -229,6 +236,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
         <div class="hidden xl:flex items-center gap-3 text-[11px] text-zinc-500">
             <span class="px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 rounded">Space</span> Play/Pause
             <span class="px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 rounded">←/→</span> Skip
+            <span class="px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 rounded">↑/↓</span> Speed
             <span class="px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 rounded">F</span> Expand
         </div>
     </footer>
@@ -660,7 +668,7 @@ export default {
         if (!targetUrl) throw new Error('No URL provided');
 
         const resp = await fetch(targetUrl, {
-          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x60) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
+          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
         });
         const html = await resp.text();
 
