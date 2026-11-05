@@ -593,7 +593,7 @@ Press space to begin reading this text at your own pace!\`;
 
                 let rawHtml = data.html || '';
 
-                // Strip script, style, and navigation tags cleanly
+                // Clean out script, style, navigation, and structural header/footer noise
                 rawHtml = rawHtml.replace(/<script\\b[^<]*(?:(?!<\\/script>)<[^<]*)*<\\/script>/gi, ' ');
                 rawHtml = rawHtml.replace(/<style\\b[^<]*(?:(?!<\\/style>)<[^<]*)*<\\/style>/gi, ' ');
                 rawHtml = rawHtml.replace(/<nav\\b[^<]*(?:(?!<\\/nav>)<[^<]*)*<\\/nav>/gi, ' ');
@@ -614,6 +614,7 @@ Press space to begin reading this text at your own pace!\`;
                 const cleanText = textContent.replace(/\\s+/g, ' ').trim();
 
                 textInput.value = cleanText;
+                loadTextInputContent();
                 updateDocStats();
                 urlModal.classList.add('hidden');
                 articleUrlInput.value = '';
@@ -653,11 +654,11 @@ Press space to begin reading this text at your own pace!\`;
             pasteClipboardBtn.addEventListener('click', async () => {
                 try {
                     const text = await navigator.clipboard.readText();
-                    if (text) { textInput.value = text; updateDocStats(); }
+                    if (text) { textInput.value = text; updateDocStats(); loadTextInputContent(); }
                 } catch(e) { alert('Clipboard permission denied.'); }
             });
-            loadSampleBtn.addEventListener('click', () => { textInput.value = DEFAULT_TEXT; updateDocStats(); });
-            clearTextBtn.addEventListener('click', () => { textInput.value = ''; updateDocStats(); });
+            loadSampleBtn.addEventListener('click', () => { textInput.value = DEFAULT_TEXT; updateDocStats(); loadTextInputContent(); });
+            clearTextBtn.addEventListener('click', () => { textInput.value = ''; updateDocStats(); loadTextInputContent(); });
 
             fontSelect.addEventListener('change', (e) => {
                 const val = e.target.value;
