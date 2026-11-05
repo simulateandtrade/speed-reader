@@ -535,55 +535,59 @@ Press space to begin reading this text at your own pace!\`;
 
         // Fetch URL handler
         async function handleFetchUrl() {
-    const url = articleUrlInput.value.trim();
-    if (!url) return;
+            const url = articleUrlInput.value.trim();
+            if (!url) return;
 
-    fetchUrlBtn.innerText = 'Loading...';
-    fetchUrlBtn.disabled = true;
+            fetchUrlBtn.innerText = 'Loading...';
+            fetchUrlBtn.disabled = true;
 
-    try {
-        const response = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
-        const data = await response.json();
+            try {
+                const response = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
+                const data = await response.json();
 
-        if (data.error) {
-            alert(data.error);
-            return;
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                let rawHtml = data.html || '';
+
+                // 1. Aggressively strip out style, script, header, nav, footer, and SVG blocks from raw HTML string
+                rawHtml = rawHtml.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ');
+                rawHtml = rawHtml.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ');
+                rawHtml = rawHtml.replace(/<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>/gi, ' ');
+                rawHtml = rawHtml.replace(/<nav\b[^<]*(?:(?!<\/nav>)<[^<]*)*<\/nav>/gi, ' ');
+                rawHtml = rawHtml.replace(/<header\b[^<]*(?:(?!<\/header>)<[^<]*)*<\/header>/gi, ' ');
+                rawHtml = rawHtml.replace(/<footer\b[^<]*(?:(?!<\/footer>)<[^<]*)*<\/footer>/gi, ' ');
+
+                // 2. Parse the cleaned HTML string safely
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(rawHtml, 'text/html');
+
+                // 3. Target article content specifically, fallback to body
+                const targetEl = doc.querySelector('article') || doc.querySelector('main') || doc.body;
+                let textContent = targetEl ? (targetEl.innerText || targetEl.textContent || '') : '';
+
+                // 4. Fallback sweep: Strip out any leftover CSS class rules or ad code patterns
+                textContent = textContent.replace(/(\.[a-zA-Z0-9_-]+\s*\{[^}]*\})/g, '');
+                textContent = textContent.replace(/(freestar|googletag|window\.[a-zA-Z0-9_]+)\s*=[\s\S]*?;/gi, '');
+                textContent = textContent.replace(/function\s*\([\s\S]*?\)\s*\{[\s\S]*?\}/gi, '');
+
+                // 5. Final normalization of whitespace
+                const cleanText = textContent.replace(/\s+/g, ' ').trim();
+
+                textInput.value = cleanText;
+                updateDocStats();
+                urlModal.classList.add('hidden');
+                articleUrlInput.value = '';
+
+            } catch (err) {
+                alert('Failed to fetch article. Please try another URL.');
+            } finally {
+                fetchUrlBtn.innerText = 'Import';
+                fetchUrlBtn.disabled = false;
+            }
         }
-
-        // Create a temporary element to parse the HTML page
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data.html, 'text/html');
-
-        // Remove junk elements: scripts, styles, navigation, headers, footers, ads
-        const junkElements = doc.querySelectorAll('script, style, header, footer, nav, aside, noscript, iframe, .ad, .advertisement');
-        junkElements.forEach(el => el.remove());
-
-        // Target main body content
-const targetEl = doc.querySelector('article') || doc.querySelector('main') || doc.body;
-let rawText = targetEl.innerText || targetEl.textContent || '';
-
-// Strip inline CSS rules (e.g. .st0{...})
-rawText = rawText.replace(/(\.[a-zA-Z0-9_-]+\s*\{[^}]*\})/g, '');
-
-// Strip inline JS snippets (e.g. freestar.queue...)
-rawText = rawText.replace(/(freestar|googletag|window\.[a-zA-Z0-9_]+)\s*=[\s\S]*?;/gi, '');
-rawText = rawText.replace(/function\s*\([\s\S]*?\)\s*\{[\s\S]*?\}/gi, '');
-
-// Normalize spacing
-const cleanText = rawText.replace(/\s+/g, ' ').trim();
-
-        textInput.value = cleanText;
-        updateDocStats();
-        urlModal.classList.add('hidden');
-        articleUrlInput.value = '';
-
-    } catch (err) {
-        alert('Failed to fetch article. Please try another URL.');
-    } finally {
-        fetchUrlBtn.innerText = 'Import';
-        fetchUrlBtn.disabled = false;
-    }
-}
 
         // Initialize state
         function init() {
