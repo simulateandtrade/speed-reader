@@ -81,7 +81,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
     <header id="mainHeader" class="window-drag-handle w-full border-b border-zinc-800/80 px-6 py-3 flex items-center justify-between bg-zinc-950/60 backdrop-blur z-20 transition-all duration-300">
         <div class="flex items-center gap-3">
             <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
-            <h1 class="text-lg font-semibold tracking-wider text-zinc-100 uppercase text-xs">RSVP Reader (Drag Header / Resize Corner)</h1>
+            <h1 class="text-lg font-semibold tracking-wider text-zinc-100 uppercase text-xs">RSVP Reader</h1>
         </div>
         
         <div class="flex items-center gap-3" onmousedown="event.stopPropagation()">
@@ -705,3 +705,40 @@ Press space to begin reading this text at your own pace!\`;
     </script>
 </body>
 </html>`;
+
+export default {
+    async fetch(request, env, ctx) {
+        const url = new URL(request.url);
+
+        // URL Fetch Endpoint Proxy
+        if (url.pathname === '/api/proxy') {
+            const targetUrl = url.searchParams.get('url');
+            if (!targetUrl) {
+                return new Response(JSON.stringify({ error: 'No URL provided' }), {
+                    status: 400,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+
+            try {
+                const resp = await fetch(targetUrl, {
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
+                });
+                const html = await resp.text();
+
+                return new Response(JSON.stringify({ html }), {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } catch (err) {
+                return new Response(JSON.stringify({ error: 'Failed to fetch article content' }), {
+                    status: ? 400 : 500,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+        }
+
+        return new Response(HTML_CONTENT, {
+            headers: { 'Content-Type': 'text/html;charset=UTF-8' }
+        });
+    }
+};
