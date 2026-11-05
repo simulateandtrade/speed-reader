@@ -16,7 +16,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
         .font-mono-code { font-family: 'Fira Code', 'Roboto Mono', monospace; }
         .font-sans-clean { font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; }
 
-        /* Movable & Resizable App Container */
+        /* Movable & Resizable App Container (Optimized for Extension & Web) */
         #appContainer {
             resize: both;
             overflow: hidden;
@@ -25,8 +25,8 @@ const HTML_CONTENT = `<!DOCTYPE html>
             left: 0px;
             width: 100vw;
             height: 100vh;
-            min-width: 400px;
-            min-height: 400px;
+            min-width: 350px;
+            min-height: 450px;
             box-shadow: 0 0 25px rgba(0,0,0,0.8);
         }
 
@@ -78,42 +78,42 @@ const HTML_CONTENT = `<!DOCTYPE html>
     <div id="appContainer" class="flex flex-col justify-between w-full h-full bg-black">
 
     <!-- Top Navigation / Header (Draggable) -->
-    <header id="mainHeader" class="window-drag-handle w-full border-b border-zinc-800/80 px-6 py-3 flex items-center justify-between bg-zinc-950/60 backdrop-blur z-20 transition-all duration-300">
-        <div class="flex items-center gap-3">
-            <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
-            <h1 class="text-lg font-semibold tracking-wider text-zinc-100 uppercase text-xs">RSVP Reader</h1>
+    <header id="mainHeader" class="window-drag-handle w-full border-b border-zinc-800/80 px-4 py-2.5 flex items-center justify-between bg-zinc-950/60 backdrop-blur z-20 transition-all duration-300">
+        <div class="flex items-center gap-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></div>
+            <h1 class="text-xs font-semibold tracking-wider text-zinc-100 uppercase">RSVP Reader</h1>
         </div>
         
-        <div class="flex items-center gap-3" onmousedown="event.stopPropagation()">
+        <div class="flex items-center gap-2" onmousedown="event.stopPropagation()">
             <!-- Font Style Picker -->
-            <select id="fontSelect" class="bg-zinc-900 border border-zinc-700 text-zinc-300 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-red-500 transition">
-                <option value="font-serif-classic" selected>Serif (Lora / Georgia)</option>
-                <option value="font-mono-code">Monospace (Fira Code)</option>
-                <option value="font-sans-clean">Sans-Serif (System)</option>
+            <select id="fontSelect" class="bg-zinc-900 border border-zinc-700 text-zinc-300 text-[11px] rounded px-2 py-1 focus:outline-none focus:border-red-500 transition">
+                <option value="font-serif-classic" selected>Serif</option>
+                <option value="font-mono-code">Mono</option>
+                <option value="font-sans-clean">Sans</option>
             </select>
 
             <!-- Fullscreen / Expand Reader Button -->
-            <button id="fullscreenBtn" title="Toggle Fullscreen Theater Mode (F)" class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg transition border border-zinc-700">
+            <button id="fullscreenBtn" title="Toggle Fullscreen Theater Mode (F)" class="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded transition border border-zinc-700">
                 <i id="fullscreenIcon" class="fa-solid fa-expand"></i>
-                <span id="fullscreenBtnText">Fullscreen</span>
+                <span id="fullscreenBtnText" class="hidden sm:inline">Fullscreen</span>
             </button>
 
             <!-- Import URL Button -->
-            <button id="openUrlModalBtn" class="flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg transition border border-zinc-700">
+            <button id="openUrlModalBtn" class="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded transition border border-zinc-700">
                 <i class="fa-solid fa-link"></i>
-                <span>Import URL</span>
+                <span>URL</span>
             </button>
 
             <!-- Get Chrome Extension Button -->
-            <a href="https://chromewebstore.google.com/detail/fpjanmbmjflmpejiohkbdmeeceldokhk" target="_blank" class="flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium bg-zinc-900 hover:bg-zinc-800 text-zinc-200 rounded-lg transition border border-zinc-700 hover:border-zinc-500 shadow-sm">
+            <a href="https://chromewebstore.google.com/detail/fpjanmbmjflmpejiohkbdmeeceldokhk" target="_blank" class="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium bg-zinc-900 hover:bg-zinc-800 text-zinc-200 rounded transition border border-zinc-700">
                 <i class="fa-brands fa-chrome text-red-500"></i>
-                <span>Get Extension</span>
+                <span class="hidden sm:inline">Extension</span>
             </a>
 
             <!-- Document Editor Switcher Button -->
-            <button id="toggleInputBtn" class="flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium bg-red-600 hover:bg-red-500 text-white rounded-lg transition shadow-md shadow-red-900/20">
+            <button id="toggleInputBtn" class="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium bg-red-600 hover:bg-red-500 text-white rounded transition shadow-md shadow-red-900/20">
                 <i class="fa-solid fa-file-lines"></i>
-                <span id="toggleInputBtnText">Paste Text</span>
+                <span id="toggleInputBtnText">Text</span>
             </button>
         </div>
     </header>
@@ -122,22 +122,22 @@ const HTML_CONTENT = `<!DOCTYPE html>
     <main id="readerStage" class="relative flex-1 flex flex-col justify-center items-center w-full transition-all duration-300 overflow-hidden">
         
         <!-- RSVP Reader Box -->
-        <div id="rsvpContainer" class="w-full relative flex flex-col items-center justify-center py-20 border-y border-zinc-800 bg-black min-h-[320px]">
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 h-10 reticle-line"></div>
-            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-10 reticle-line"></div>
+        <div id="rsvpContainer" class="w-full relative flex flex-col items-center justify-center py-12 border-y border-zinc-800 bg-black min-h-[220px]">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 h-8 reticle-line"></div>
+            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 h-8 reticle-line"></div>
 
-            <div id="wordDisplay" class="font-serif-classic text-6xl md:text-7xl lg:text-8xl tracking-normal text-white flex items-center justify-center w-full my-auto z-10">
+            <div id="wordDisplay" class="font-serif-classic text-5xl md:text-7xl tracking-normal text-white flex items-center justify-center w-full my-auto z-10">
                 <span id="prefixSpan" class="text-right flex-1 select-text">Press</span>
                 <span id="orpSpan" class="orp-target px-[1px]">S</span>
                 <span id="suffixSpan" class="text-left flex-1 select-text">tart</span>
             </div>
 
-            <div class="absolute bottom-4 right-8 md:right-16 flex items-baseline gap-2 font-serif-classic italic text-2xl md:text-3xl text-zinc-500 tracking-wide select-none">
-                <input id="wpmDirectInput" type="number" min="50" max="3000" step="10" value="300" class="w-24 md:w-32 bg-transparent text-right text-zinc-300 border-b border-transparent hover:border-zinc-700 focus:border-red-500 focus:outline-none transition-colors font-serif-classic italic text-2xl md:text-3xl [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+            <div class="absolute bottom-3 right-6 flex items-baseline gap-1.5 font-serif-classic italic text-xl md:text-2xl text-zinc-500 tracking-wide select-none">
+                <input id="wpmDirectInput" type="number" min="50" max="3000" step="10" value="300" class="w-20 bg-transparent text-right text-zinc-300 border-b border-transparent hover:border-zinc-700 focus:border-red-500 focus:outline-none transition-colors font-serif-classic italic text-xl md:text-2xl [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
                 <span>wpm</span>
             </div>
             
-            <div class="absolute bottom-4 left-8 md:left-16 text-xs md:text-sm text-zinc-500 font-mono tracking-wider max-w-[30%] truncate" id="contextPreview">
+            <div class="absolute bottom-3 left-6 text-xs text-zinc-500 font-mono tracking-wider max-w-[30%] truncate" id="contextPreview">
                 Ready to read
             </div>
         </div>
@@ -147,9 +147,9 @@ const HTML_CONTENT = `<!DOCTYPE html>
             <div id="progressBar" class="bg-red-600 h-full w-0 transition-all duration-100"></div>
         </div>
 
-        <!-- STRUCTURAL LIVE PROGRESS TRACKER PANEL (Taller top-to-bottom box) -->
-        <div id="trackerPanel" class="w-full max-w-4xl px-6 py-4 transition-all duration-300">
-            <div id="trackerContainer" class="w-full max-h-72 overflow-y-auto bg-zinc-950/80 border border-zinc-900 rounded-lg p-6 text-sm font-serif-classic text-zinc-500 leading-relaxed shadow-inner space-y-3">
+        <!-- STRUCTURAL LIVE PROGRESS TRACKER PANEL (Expanded for both Web and Extension) -->
+        <div id="trackerPanel" class="w-full max-w-4xl px-4 py-3 flex-1 flex flex-col min-h-0 transition-all duration-300">
+            <div id="trackerContainer" class="w-full h-full max-h-[calc(100vh-380px)] min-h-[160px] overflow-y-auto bg-zinc-950/80 border border-zinc-900 rounded-lg p-5 text-sm font-serif-classic text-zinc-500 leading-relaxed shadow-inner space-y-3">
                 <div id="trackerText">Loading document text...</div>
             </div>
         </div>
@@ -219,52 +219,50 @@ const HTML_CONTENT = `<!DOCTYPE html>
     </div>
 
     <!-- Bottom Controls Footer -->
-    <footer id="mainFooter" class="w-full border-t border-zinc-800/80 px-6 py-4 bg-zinc-950/90 backdrop-blur z-20 flex flex-col md:flex-row items-center justify-between gap-4 transition-all duration-300">
-        <div class="flex items-center gap-4">
-            <button id="restartBtn" title="Restart (R)" class="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 hover:border-zinc-600 text-zinc-300 hover:text-white flex items-center justify-center transition">
+    <footer id="mainFooter" class="w-full border-t border-zinc-800/80 px-6 py-3 bg-zinc-950/90 backdrop-blur z-20 flex flex-col md:flex-row items-center justify-between gap-3 transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <button id="restartBtn" title="Restart (R)" class="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 hover:border-zinc-600 text-zinc-300 hover:text-white flex items-center justify-center transition">
                 <i class="fa-solid fa-rotate-right text-xs"></i>
             </button>
-            <button id="stepBackBtn" title="Previous Word (Left Arrow)" class="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 hover:border-zinc-600 text-zinc-300 hover:text-white flex items-center justify-center transition">
+            <button id="stepBackBtn" title="Previous Word (Left Arrow)" class="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 hover:border-zinc-600 text-zinc-300 hover:text-white flex items-center justify-center transition">
                 <i class="fa-solid fa-backward-step text-xs"></i>
             </button>
-            <button id="playPauseBtn" title="Play / Pause (Space)" class="w-12 h-12 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center transition shadow-lg shadow-red-900/30">
-                <i id="playIcon" class="fa-solid fa-play ml-0.5"></i>
-                <i id="pauseIcon" class="fa-solid fa-pause hidden"></i>
+            <button id="playPauseBtn" title="Play / Pause (Space)" class="w-10 h-10 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center transition shadow-lg shadow-red-900/30">
+                <i id="playIcon" class="fa-solid fa-play ml-0.5 text-xs"></i>
+                <i id="pauseIcon" class="fa-solid fa-pause hidden text-xs"></i>
             </button>
-            <button id="stepForwardBtn" title="Next Word (Right Arrow)" class="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 hover:border-zinc-600 text-zinc-300 hover:text-white flex items-center justify-center transition">
+            <button id="stepForwardBtn" title="Next Word (Right Arrow)" class="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 hover:border-zinc-600 text-zinc-300 hover:text-white flex items-center justify-center transition">
                 <i class="fa-solid fa-forward-step text-xs"></i>
             </button>
         </div>
 
-        <div class="flex flex-wrap items-center gap-6 w-full md:w-auto justify-center">
-            <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-4 w-full md:w-auto justify-center">
+            <div class="flex items-center gap-2">
                 <i class="fa-solid fa-gauge-high text-xs text-zinc-500"></i>
                 <div class="flex flex-col">
-                    <div class="flex justify-between items-center text-[10px] text-zinc-400 mb-1">
+                    <div class="flex justify-between items-center text-[10px] text-zinc-400 mb-0.5">
                         <span>Speed</span>
                         <span id="sliderWpmVal" class="font-mono text-zinc-200">300 WPM</span>
                     </div>
-                    <input type="range" id="wpmSlider" min="100" max="1000" step="25" value="300" class="w-32 md:w-44 h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer">
+                    <input type="range" id="wpmSlider" min="100" max="1000" step="25" value="300" class="w-28 md:w-36 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer">
                 </div>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
                 <i class="fa-solid fa-text-height text-xs text-zinc-500"></i>
                 <div class="flex flex-col">
-                    <div class="flex justify-between items-center text-[10px] text-zinc-400 mb-1"><span>Font Size</span></div>
-                    <div class="flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded-lg p-0.5">
-                        <button id="decreaseFontBtn" class="w-6 h-6 text-xs text-zinc-400 hover:text-white hover:bg-zinc-800 rounded flex items-center justify-center">-</button>
-                        <button id="increaseFontBtn" class="w-6 h-6 text-xs text-zinc-400 hover:text-white hover:bg-zinc-800 rounded flex items-center justify-center">+</button>
+                    <div class="flex justify-between items-center text-[10px] text-zinc-400 mb-0.5"><span>Font Size</span></div>
+                    <div class="flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded p-0.5">
+                        <button id="decreaseFontBtn" class="w-5 h-5 text-[11px] text-zinc-400 hover:text-white hover:bg-zinc-800 rounded flex items-center justify-center">-</button>
+                        <button id="increaseFontBtn" class="w-5 h-5 text-[11px] text-zinc-400 hover:text-white hover:bg-zinc-800 rounded flex items-center justify-center">+</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="hidden xl:flex items-center gap-3 text-[11px] text-zinc-500">
-            <span class="px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 rounded">Space</span> Play/Pause
-            <span class="px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 rounded">←/→</span> Skip
-            <span class="px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 rounded">↑/↓</span> Speed
-            <span class="px-1.5 py-0.5 bg-zinc-900 border border-zinc-800 rounded">F</span> Expand
+        <div class="hidden xl:flex items-center gap-2 text-[10px] text-zinc-500">
+            <span class="px-1 py-0.5 bg-zinc-900 border border-zinc-800 rounded">Space</span> Play/Pause
+            <span class="px-1 py-0.5 bg-zinc-900 border border-zinc-800 rounded">←/→</span> Skip
         </div>
     </footer>
 
@@ -555,12 +553,12 @@ Press space to begin reading this text at your own pace!\`;
             if (shouldShow) {
                 pause();
                 documentEditorView.classList.remove('hidden');
-                toggleInputBtnText.textContent = 'Return to Reader';
+                toggleInputBtnText.textContent = 'Reader';
                 updateDocStats();
                 textInput.focus();
             } else {
                 documentEditorView.classList.add('hidden');
-                toggleInputBtnText.textContent = 'Paste Text';
+                toggleInputBtnText.textContent = 'Text';
                 loadTextInputContent();
             }
         }
@@ -606,16 +604,14 @@ Press space to begin reading this text at your own pace!\`;
                 let paragraphs = [];
 
                 paragraphNodes.forEach(p => {
-                    // Skip paragraphs that belong to image captions, ads, or copyright notices
                     if (p.closest('figure') || p.closest('aside') || p.closest('.ad') || p.closest('footer') || p.closest('header')) return;
                     const text = p.textContent.trim();
-                    // Filter out short metadata strings like photo counts ("1 of 6") or licensing links
                     if (text.length > 20 && !text.includes('AP Photo/') && !text.match(/^\\d+\\s+of\\s+\\d+/i)) {
                         paragraphs.push(text);
                     }
                 });
 
-                // 4. Combine title and structured paragraphs with double line breaks for natural paragraph spacing
+                // 4. Combine title and structured paragraphs with double line breaks
                 let cleanText = '';
                 if (articleTitle) {
                     cleanText += articleTitle + '\\n\\n';
@@ -671,8 +667,8 @@ Press space to begin reading this text at your own pace!\`;
 
             fontSelect.addEventListener('change', (e) => {
                 const val = e.target.value;
-                wordDisplay.className = \`\${val} text-6xl md:text-7xl lg:text-8xl tracking-normal text-white flex items-center justify-center w-full my-auto z-10\`;
-                trackerText.className = \`w-full max-h-72 overflow-y-auto bg-zinc-950/80 border border-zinc-900 rounded-lg p-6 text-sm \${val} text-zinc-500 leading-relaxed shadow-inner space-y-3\`;
+                wordDisplay.className = \`\${val} text-5xl md:text-7xl tracking-normal text-white flex items-center justify-center w-full my-auto z-10\`;
+                trackerContainer.className = \`w-full h-full max-h-[calc(100vh-380px)] min-h-[160px] overflow-y-auto bg-zinc-950/80 border border-zinc-900 rounded-lg p-5 text-sm \${val} text-zinc-500 leading-relaxed shadow-inner space-y-3\`;
             });
 
             decreaseFontBtn.addEventListener('click', () => {
