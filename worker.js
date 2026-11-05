@@ -535,35 +535,47 @@ Press space to begin reading this text at your own pace!\`;
 
         // Fetch URL handler
         async function handleFetchUrl() {
-            const targetUrl = articleUrlInput.value.trim();
-            if (!targetUrl) return;
+    const url = articleUrlInput.value.trim();
+    if (!url) return;
 
-            fetchUrlBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Fetching...';
-            fetchUrlBtn.disabled = true;
+    fetchUrlBtn.innerText = 'Loading...';
+    fetchUrlBtn.disabled = true;
 
-            try {
-                const res = await fetch('/api/fetch-url', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: targetUrl })
-                });
-                const data = await res.json();
-                if (data.success && data.text) {
-                    textInput.value = data.text;
-                    loadTextInputContent();
-                    urlModal.classList.add('hidden');
-                    articleUrlInput.value = '';
-                    play();
-                } else {
-                    alert('Could not extract article text from this URL.');
-                }
-            } catch (err) {
-                alert('Failed to connect to fetch service.');
-            } finally {
-                fetchUrlBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Fetch & Read';
-                fetchUrlBtn.disabled = false;
-            }
+    try {
+        const response = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
+        const data = await response.json();
+
+        if (data.error) {
+            alert(data.error);
+            return;
         }
+
+        // Create a temporary element to parse the HTML page
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data.html, 'text/html');
+
+        // Remove junk elements: scripts, styles, navigation, headers, footers, ads
+        const junkElements = doc.querySelectorAll('script, style, header, footer, nav, aside, noscript, iframe, .ad, .advertisement');
+        junkElements.forEach(el => el.remove());
+
+        // Grab text specifically from an article/main section if it exists, otherwise full body
+        const mainContent = doc.querySelector('article') || doc.querySelector('main') || doc.body;
+        
+        // Clean up excess white spaces
+        const cleanText = mainContent.innerText.replace(/\s+/g, ' ').trim();
+
+        textInput.value = cleanText;
+        updateDocStats();
+        urlModal.classList.add('hidden');
+        articleUrlInput.value = '';
+
+    } catch (err) {
+        alert('Failed to fetch article. Please try another URL.');
+    } finally {
+        fetchUrlBtn.innerText = 'Import';
+        fetchUrlBtn.disabled = false;
+    }
+}
 
         // Initialize state
         function init() {
