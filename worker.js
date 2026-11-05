@@ -731,7 +731,7 @@ export default {
                 });
             } catch (err) {
                 return new Response(JSON.stringify({ error: 'Failed to fetch article content' }), {
-                    status: ? 400 : 500,
+                    status: 500,
                     headers: { 'Content-Type': 'application/json' }
                 });
             }
