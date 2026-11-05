@@ -558,11 +558,19 @@ Press space to begin reading this text at your own pace!\`;
         const junkElements = doc.querySelectorAll('script, style, header, footer, nav, aside, noscript, iframe, .ad, .advertisement');
         junkElements.forEach(el => el.remove());
 
-        // Grab text specifically from an article/main section if it exists, otherwise full body
-        const mainContent = doc.querySelector('article') || doc.querySelector('main') || doc.body;
-        
-        // Clean up excess white spaces
-        const cleanText = mainContent.innerText.replace(/\s+/g, ' ').trim();
+        // Target main body content
+const targetEl = doc.querySelector('article') || doc.querySelector('main') || doc.body;
+let rawText = targetEl.innerText || targetEl.textContent || '';
+
+// Strip inline CSS rules (e.g. .st0{...})
+rawText = rawText.replace(/(\.[a-zA-Z0-9_-]+\s*\{[^}]*\})/g, '');
+
+// Strip inline JS snippets (e.g. freestar.queue...)
+rawText = rawText.replace(/(freestar|googletag|window\.[a-zA-Z0-9_]+)\s*=[\s\S]*?;/gi, '');
+rawText = rawText.replace(/function\s*\([\s\S]*?\)\s*\{[\s\S]*?\}/gi, '');
+
+// Normalize spacing
+const cleanText = rawText.replace(/\s+/g, ' ').trim();
 
         textInput.value = cleanText;
         updateDocStats();
