@@ -158,8 +158,8 @@ const HTML_CONTENT = `<!DOCTYPE html>
         </div>
 
         <!-- STRUCTURAL LIVE PROGRESS TRACKER PANEL -->
-        <div id="trackerPanel" class="w-full max-w-4xl px-6 py-4 transition-all duration-300">
-            <div id="trackerContainer" class="w-full max-h-[560px] h-[360px] overflow-y-auto bg-zinc-950/80 border border-zinc-900 rounded-lg p-6 text-sm font-serif-classic text-zinc-500 leading-relaxed shadow-inner space-y-3">
+        <div id="trackerPanel" class="w-full max-w-4xl px-6 py-2 flex-1 flex flex-col min-h-0 transition-all duration-300">
+            <div id="trackerContainer" class="w-full h-full min-h-[220px] max-h-[none] overflow-y-auto bg-zinc-950/80 border border-zinc-900 rounded-lg p-6 text-sm font-serif-classic text-zinc-500 leading-relaxed shadow-inner space-y-3">
                 <div id="trackerText">Loading document text...</div>
             </div>
         </div>
