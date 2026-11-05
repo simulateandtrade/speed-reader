@@ -574,7 +574,7 @@ Press space to begin reading this text at your own pace!\`;
             renderCurrentWord();
         }
 
-        // Fetch URL handler
+        // Fetch URL handler - Strictly extracts title and body paragraphs, dropping photo captions and metadata
         async function handleFetchUrl() {
             const url = articleUrlInput.value.trim();
             if (!url) return;
@@ -591,27 +591,36 @@ Press space to begin reading this text at your own pace!\`;
                     return;
                 }
 
-                let rawHtml = data.html || '';
-
-                // Clean out script, style, navigation, and structural header/footer noise
-                rawHtml = rawHtml.replace(/<script\\b[^<]*(?:(?!<\\/script>)<[^<]*)*<\\/script>/gi, ' ');
-                rawHtml = rawHtml.replace(/<style\\b[^<]*(?:(?!<\\/style>)<[^<]*)*<\\/style>/gi, ' ');
-                rawHtml = rawHtml.replace(/<nav\\b[^<]*(?:(?!<\\/nav>)<[^<]*)*<\\/nav>/gi, ' ');
-                rawHtml = rawHtml.replace(/<header\\b[^<]*(?:(?!<\\/header>)<[^<]*)*<\\/header>/gi, ' ');
-                rawHtml = rawHtml.replace(/<footer\\b[^<]*(?:(?!<\\/footer>)<[^<]*)*<\\/footer>/gi, ' ');
-
                 const parser = new DOMParser();
-                const doc = parser.parseFromString(rawHtml, 'text/html');
+                const doc = parser.parseFromString(data.html, 'text/html');
 
-                const targetEl = doc.querySelector('article') || doc.querySelector('main') || doc.body;
-                let textContent = targetEl ? (targetEl.innerText || targetEl.textContent || '') : '';
+                // 1. Extract the primary article title
+                const titleEl = doc.querySelector('h1') || doc.querySelector('title');
+                const articleTitle = titleEl ? titleEl.textContent.trim() : '';
 
-                // Strip lingering CSS rules or ad snippets
-                textContent = textContent.replace(/(\\.[a-zA-Z0-9_-]+\\s*\\{[^\\}]*\\})/g, '');
-                textContent = textContent.replace(/(freestar|googletag|window\\.[a-zA-Z0-9_]+)\\s*=[\\s\\S]*?;/gi, '');
-                textContent = textContent.replace(/function\\s*\\([\\s\\S]*?\\)\\s*\\{[\\s\\S]*?\\}/gi, '');
+                // 2. Locate the main article container
+                const articleContainer = doc.querySelector('article') || doc.querySelector('main') || doc.body;
 
-                const cleanText = textContent.replace(/\\s+/g, ' ').trim();
+                // 3. Extract ONLY clean paragraph texts, ignoring figures, captions, asides, and sidebars
+                const paragraphNodes = articleContainer.querySelectorAll('p');
+                let paragraphs = [];
+
+                paragraphNodes.forEach(p => {
+                    // Skip paragraphs that belong to image captions, ads, or copyright notices
+                    if (p.closest('figure') || p.closest('aside') || p.closest('.ad') || p.closest('footer') || p.closest('header')) return;
+                    const text = p.textContent.trim();
+                    // Filter out short metadata strings like photo counts ("1 of 6") or licensing links
+                    if (text.length > 20 && !text.includes('AP Photo/') && !text.match(/^\\d+\\s+of\\s+\\d+/i)) {
+                        paragraphs.push(text);
+                    }
+                });
+
+                // 4. Combine title and structured paragraphs with double line breaks for natural paragraph spacing
+                let cleanText = '';
+                if (articleTitle) {
+                    cleanText += articleTitle + '\\n\\n';
+                }
+                cleanText += paragraphs.join('\\n\\n');
 
                 textInput.value = cleanText;
                 loadTextInputContent();
