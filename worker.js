@@ -16,6 +16,25 @@ const HTML_CONTENT = `<!DOCTYPE html>
         .font-mono-code { font-family: 'Fira Code', 'Roboto Mono', monospace; }
         .font-sans-clean { font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; }
 
+        /* Movable & Resizable App Container */
+        #appContainer {
+            resize: both;
+            overflow: hidden;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100vw;
+            height: 100vh;
+            min-width: 400px;
+            min-height: 400px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.8);
+        }
+
+        /* Drag Handle Style */
+        .window-drag-handle {
+            cursor: move;
+        }
+
         /* Reticle Vertical Marker Line */
         .reticle-line {
             width: 2px;
@@ -54,16 +73,18 @@ const HTML_CONTENT = `<!DOCTYPE html>
         }
     </style>
 </head>
-<body class="h-full flex flex-col justify-between bg-black text-gray-200 antialiased select-none font-sans-clean overflow-hidden">
+<body class="h-full flex flex-col justify-between bg-black text-gray-200 antialiased select-none font-sans-clean overflow-hidden relative">
 
-    <!-- Top Navigation / Header -->
-    <header id="mainHeader" class="w-full border-b border-zinc-800/80 px-6 py-3 flex items-center justify-between bg-zinc-950/60 backdrop-blur z-20 transition-all duration-300">
+    <div id="appContainer" class="flex flex-col justify-between w-full h-full bg-black">
+
+    <!-- Top Navigation / Header (Draggable) -->
+    <header id="mainHeader" class="window-drag-handle w-full border-b border-zinc-800/80 px-6 py-3 flex items-center justify-between bg-zinc-950/60 backdrop-blur z-20 transition-all duration-300">
         <div class="flex items-center gap-3">
             <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
-            <h1 class="text-lg font-semibold tracking-wider text-zinc-100 uppercase text-xs">RSVP Reader</h1>
+            <h1 class="text-lg font-semibold tracking-wider text-zinc-100 uppercase text-xs">RSVP Reader (Drag Header / Resize Corner)</h1>
         </div>
         
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3" onmousedown="event.stopPropagation()">
             <!-- Font Style Picker -->
             <select id="fontSelect" class="bg-zinc-900 border border-zinc-700 text-zinc-300 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-red-500 transition">
                 <option value="font-serif-classic" selected>Serif (Lora / Georgia)</option>
@@ -98,7 +119,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
     </header>
 
     <!-- Main Reader & Display Area -->
-    <main id="readerStage" class="relative flex-1 flex flex-col justify-center items-center w-full transition-all duration-300">
+    <main id="readerStage" class="relative flex-1 flex flex-col justify-center items-center w-full transition-all duration-300 overflow-hidden">
         
         <!-- RSVP Reader Box -->
         <div id="rsvpContainer" class="w-full relative flex flex-col items-center justify-center py-20 border-y border-zinc-800 bg-black min-h-[320px]">
@@ -126,9 +147,9 @@ const HTML_CONTENT = `<!DOCTYPE html>
             <div id="progressBar" class="bg-red-600 h-full w-0 transition-all duration-100"></div>
         </div>
 
-        <!-- STRUCTURAL LIVE PROGRESS TRACKER PANEL -->
+        <!-- STRUCTURAL LIVE PROGRESS TRACKER PANEL (Taller top-to-bottom box) -->
         <div id="trackerPanel" class="w-full max-w-4xl px-6 py-4 transition-all duration-300">
-            <div id="trackerContainer" class="w-full max-h-36 overflow-y-auto bg-zinc-950/80 border border-zinc-900 rounded-lg p-4 text-sm font-serif-classic text-zinc-500 leading-relaxed shadow-inner space-y-3">
+            <div id="trackerContainer" class="w-full max-h-72 overflow-y-auto bg-zinc-950/80 border border-zinc-900 rounded-lg p-6 text-sm font-serif-classic text-zinc-500 leading-relaxed shadow-inner space-y-3">
                 <div id="trackerText">Loading document text...</div>
             </div>
         </div>
@@ -247,6 +268,8 @@ const HTML_CONTENT = `<!DOCTYPE html>
         </div>
     </footer>
 
+    </div>
+
     <!-- Logic Script -->
     <script>
         const DEFAULT_TEXT = \`Rapid Serial Visual Presentation (RSVP) is a reading technique where words are displayed sequentially in a fixed position on the screen.
@@ -309,6 +332,24 @@ Press space to begin reading this text at your own pace!\`;
         const cancelUrlBtn = document.getElementById('cancelUrlBtn');
         const fetchUrlBtn = document.getElementById('fetchUrlBtn');
         const articleUrlInput = document.getElementById('articleUrlInput');
+        const appContainer = document.getElementById('appContainer');
+
+        // Window Draggability Logic
+        let isDragging = false;
+        let dragStartX = 0, dragStartY = 0;
+        mainHeader.addEventListener('mousedown', (e) => {
+            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT' || e.target.closest('button') || e.target.closest('select')) return;
+            isDragging = true;
+            dragStartX = e.clientX - appContainer.offsetLeft;
+            dragStartY = e.clientY - appContainer.offsetTop;
+            appContainer.style.position = 'absolute';
+        });
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            appContainer.style.left = (e.clientX - dragStartX) + 'px';
+            appContainer.style.top = (e.clientY - dragStartY) + 'px';
+        });
+        document.addEventListener('mouseup', () => { isDragging = false; });
 
         function getOrpIndex(word) {
             const cleanLength = word.length;
@@ -435,7 +476,7 @@ Press space to begin reading this text at your own pace!\`;
                 return;
             }
             const percentage = ((currentIndex + 1) / words.length) * 100;
-            progressBar.style.width = \`\${Math.min(100, Math.max(0, percentage))}'%\`;
+            progressBar.style.width = \`\${Math.min(100, Math.max(0, percentage))}%\`;
         }
 
         function getDelayForWord(word) {
@@ -542,7 +583,7 @@ Press space to begin reading this text at your own pace!\`;
             fetchUrlBtn.disabled = true;
 
             try {
-                const response = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
+                const response = await fetch(\`/api/proxy?url=\${encodeURIComponent(url)}\`);
                 const data = await response.json();
 
                 if (data.error) {
@@ -552,29 +593,25 @@ Press space to begin reading this text at your own pace!\`;
 
                 let rawHtml = data.html || '';
 
-                // 1. Aggressively strip out style, script, header, nav, footer, and SVG blocks from raw HTML string
-                rawHtml = rawHtml.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ');
-                rawHtml = rawHtml.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ');
-                rawHtml = rawHtml.replace(/<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>/gi, ' ');
-                rawHtml = rawHtml.replace(/<nav\b[^<]*(?:(?!<\/nav>)<[^<]*)*<\/nav>/gi, ' ');
-                rawHtml = rawHtml.replace(/<header\b[^<]*(?:(?!<\/header>)<[^<]*)*<\/header>/gi, ' ');
-                rawHtml = rawHtml.replace(/<footer\b[^<]*(?:(?!<\/footer>)<[^<]*)*<\/footer>/gi, ' ');
+                // Strip script, style, and navigation tags cleanly
+                rawHtml = rawHtml.replace(/<script\\b[^<]*(?:(?!<\\/script>)<[^<]*)*<\\/script>/gi, ' ');
+                rawHtml = rawHtml.replace(/<style\\b[^<]*(?:(?!<\\/style>)<[^<]*)*<\\/style>/gi, ' ');
+                rawHtml = rawHtml.replace(/<nav\\b[^<]*(?:(?!<\\/nav>)<[^<]*)*<\\/nav>/gi, ' ');
+                rawHtml = rawHtml.replace(/<header\\b[^<]*(?:(?!<\\/header>)<[^<]*)*<\\/header>/gi, ' ');
+                rawHtml = rawHtml.replace(/<footer\\b[^<]*(?:(?!<\\/footer>)<[^<]*)*<\\/footer>/gi, ' ');
 
-                // 2. Parse the cleaned HTML string safely
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(rawHtml, 'text/html');
 
-                // 3. Target article content specifically, fallback to body
                 const targetEl = doc.querySelector('article') || doc.querySelector('main') || doc.body;
                 let textContent = targetEl ? (targetEl.innerText || targetEl.textContent || '') : '';
 
-                // 4. Fallback sweep: Strip out any leftover CSS class rules or ad code patterns
-                textContent = textContent.replace(/(\.[a-zA-Z0-9_-]+\s*\{[^}]*\})/g, '');
-                textContent = textContent.replace(/(freestar|googletag|window\.[a-zA-Z0-9_]+)\s*=[\s\S]*?;/gi, '');
-                textContent = textContent.replace(/function\s*\([\s\S]*?\)\s*\{[\s\S]*?\}/gi, '');
+                // Strip lingering CSS rules or ad snippets
+                textContent = textContent.replace(/(\\.[a-zA-Z0-9_-]+\\s*\\{[^\\}]*\\})/g, '');
+                textContent = textContent.replace(/(freestar|googletag|window\\.[a-zA-Z0-9_]+)\\s*=[\\s\\S]*?;/gi, '');
+                textContent = textContent.replace(/function\\s*\\([\\s\\S]*?\\)\\s*\\{[\\s\\S]*?\\}/gi, '');
 
-                // 5. Final normalization of whitespace
-                const cleanText = textContent.replace(/\s+/g, ' ').trim();
+                const cleanText = textContent.replace(/\\s+/g, ' ').trim();
 
                 textInput.value = cleanText;
                 updateDocStats();
@@ -612,124 +649,59 @@ Press space to begin reading this text at your own pace!\`;
             wpmDirectInput.addEventListener('blur', () => { wpmDirectInput.value = wpm; });
 
             toggleInputBtn.addEventListener('click', () => toggleDocumentEditor());
-            closeEditorBtn.addEventListener('click', () => {
-                toggleDocumentEditor(false);
-                play();
-            });
-
+            closeEditorBtn.addEventListener('click', () => toggleDocumentEditor(false));
             pasteClipboardBtn.addEventListener('click', async () => {
                 try {
                     const text = await navigator.clipboard.readText();
                     if (text) { textInput.value = text; updateDocStats(); }
-                } catch (err) {
-                    textInput.focus();
-                    document.execCommand('paste');
-                    updateDocStats();
+                } catch(e) { alert('Clipboard permission denied.'); }
+            });
+            loadSampleBtn.addEventListener('click', () => { textInput.value = DEFAULT_TEXT; updateDocStats(); });
+            clearTextBtn.addEventListener('click', () => { textInput.value = ''; updateDocStats(); });
+
+            fontSelect.addEventListener('change', (e) => {
+                const val = e.target.value;
+                wordDisplay.className = \`\${val} text-6xl md:text-7xl lg:text-8xl tracking-normal text-white flex items-center justify-center w-full my-auto z-10\`;
+                trackerText.className = \`w-full max-h-72 overflow-y-auto bg-zinc-950/80 border border-zinc-900 rounded-lg p-6 text-sm \${val} text-zinc-500 leading-relaxed shadow-inner space-y-3\`;
+            });
+
+            decreaseFontBtn.addEventListener('click', () => {
+                if (currentFontSizeIndex > 0) {
+                    currentFontSizeIndex--;
+                    wordDisplay.className = \`\${fontSelect.value} \${fontSizes[currentFontSizeIndex]} tracking-normal text-white flex items-center justify-center w-full my-auto z-10\`;
+                }
+            });
+            increaseFontBtn.addEventListener('click', () => {
+                if (currentFontSizeIndex < fontSizes.length - 1) {
+                    currentFontSizeIndex++;
+                    wordDisplay.className = \`\${fontSelect.value} \${fontSizes[currentFontSizeIndex]} tracking-normal text-white flex items-center justify-center w-full my-auto z-10\`;
                 }
             });
 
-            loadSampleBtn.addEventListener('click', () => { textInput.value = DEFAULT_TEXT; updateDocStats(); });
-            clearTextBtn.addEventListener('click', () => { textInput.value = ''; updateDocStats(); });
-            textInput.addEventListener('input', updateDocStats);
-
             progressBarContainer.addEventListener('click', (e) => {
-                if (words.length === 0) return;
                 const rect = progressBarContainer.getBoundingClientRect();
-                const clickRatio = (e.clientX - rect.left) / rect.width;
-                currentIndex = Math.min(words.length - 1, Math.max(0, Math.floor(clickRatio * words.length)));
+                const clickX = e.clientX - rect.left;
+                const width = rect.width;
+                const percentage = Math.max(0, Math.min(1, clickX / width));
+                currentIndex = Math.floor(percentage * words.length);
                 renderCurrentWord();
             });
 
-            fontSelect.addEventListener('change', (e) => {
-                wordDisplay.className = \`\${e.target.value} \${fontSizes[currentFontSizeIndex]} tracking-normal text-white flex items-center justify-center w-full my-auto\`;
-            });
+            document.addEventListener('keydown', (e) => {
+                const activeTag = document.activeElement ? document.activeElement.tagName : '';
+                if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT') return;
 
-            decreaseFontBtn.addEventListener('click', () => { if (currentFontSizeIndex > 0) { currentFontSizeIndex--; applyFontSize(); } });
-            increaseFontBtn.addEventListener('click', () => { if (currentFontSizeIndex < fontSizes.length - 1) { currentFontSizeIndex++; applyFontSize(); } });
-
-            function applyFontSize() {
-                const currentFontFamily = fontSelect.value;
-                wordDisplay.className = \`\${currentFontFamily} \${fontSizes[currentFontSizeIndex]} tracking-normal text-white flex items-center justify-center w-full my-auto\`;
-            }
-
-            window.addEventListener('keydown', (e) => {
-                if (document.activeElement === textInput || document.activeElement === wpmDirectInput || document.activeElement === articleUrlInput) return;
-                switch (e.key) {
-        case ' ':
-        case 'Spacebar': e.preventDefault(); togglePlayPause(); break;
-        case 'f':
-        case 'F': e.preventDefault(); toggleFullscreen(); break;
-        case 'Escape':
-            if (isFullscreen) toggleFullscreen();
-            if (!urlModal.classList.contains('hidden')) urlModal.classList.add('hidden');
-            break;
-        case 'ArrowLeft': e.preventDefault(); stepBackward(); break;
-        case 'ArrowRight': e.preventDefault(); stepForward(); break;
-        case 'ArrowUp': e.preventDefault(); setWpm(Math.min(1000, wpm + 25)); break;
-        case 'ArrowDown': e.preventDefault(); setWpm(Math.max(100, wpm - 25)); break;
-        case 'r':
-        case 'R': e.preventDefault(); restart(); break;
-        case 'e':
-        case 'E': e.preventDefault(); toggleDocumentEditor(); break;
-    }
+                if (e.code === 'Space') { e.preventDefault(); togglePlayPause(); }
+                else if (e.code === 'ArrowRight') { e.preventDefault(); stepForward(); }
+                else if (e.code === 'ArrowLeft') { e.preventDefault(); stepBackward(); }
+                else if (e.code === 'ArrowUp') { e.preventDefault(); setWpm(wpm + 25); }
+                else if (e.code === 'ArrowDown') { e.preventDefault(); setWpm(wpm - 25); }
+                else if (e.key.toLowerCase() === 'r') { e.preventDefault(); restart(); }
+                else if (e.key.toLowerCase() === 'f') { e.preventDefault(); toggleFullscreen(); }
             });
         }
 
-        window.addEventListener('DOMContentLoaded', init);
+        init();
     </script>
 </body>
-</html>
-`;
-
-function getOrpIndex(word) {
-  const cleanLength = word.length;
-  if (cleanLength <= 1) return 0;
-  if (cleanLength <= 5) return 1;
-  if (cleanLength <= 9) return 2;
-  if (cleanLength <= 13) return 3;
-  return 4;
-}
-
-export default {
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-
-    // URL Fetch Endpoint for Solution #2
-    if (url.pathname === '/api/fetch-url' && request.method === 'POST') {
-      try {
-        const body = await request.json();
-        const targetUrl = body.url;
-        if (!targetUrl) throw new Error('No URL provided');
-
-        const resp = await fetch(targetUrl, {
-          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
-        });
-        const html = await resp.text();
-
-        // Basic lightweight server-side paragraph text extraction
-        const pMatches = html.match(/<p[^>]*>([\s\S]*?)<\/p>/gi) || [];
-        let extractedText = pMatches
-          .map(p => p.replace(/<[^>]+>/g, '').trim())
-          .filter(text => text.length > 30 && !text.toLowerCase().includes('cookie') && !text.toLowerCase().includes('subscribe'))
-          .join('\n\n');
-
-        if (!extractedText) {
-          extractedText = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 5000);
-        }
-
-        return new Response(JSON.stringify({ success: true, text: extractedText }), {
-          headers: { 'Content-Type': 'application/json' }
-        });
-      } catch (err) {
-        return new Response(JSON.stringify({ success: false, error: 'Failed to fetch URL content' }), {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-    }
-
-    return new Response(HTML_CONTENT, {
-      headers: { 'Content-Type': 'text/html;charset=UTF-8' }
-    });
-  }
-};
+</html>`;
